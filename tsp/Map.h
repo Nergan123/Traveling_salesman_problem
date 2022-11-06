@@ -19,23 +19,27 @@ public:
 	}
 	void create_window() {
 		glfwInit();
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		GLFWwindow* window;
 
-		GLFWwindow* window = glfwCreateWindow(size_x, size_y, " TSP by Nergan", NULL, NULL);
+		if (!glfwInit()) {
+			cout << "Init glfw error" << endl;
+			glfwTerminate();
+		}
+
+		window = glfwCreateWindow(size_x, size_y, " TSP by Nergan", 0, 0);
 		if (window == NULL)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
 		}
+
 		glfwMakeContextCurrent(window);
 		while (!glfwWindowShouldClose(window))
 		{
-			processInput(window);
-
-			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
+
+			drawCircle(0.0, 0.0, 0.03, 360);
+			
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
@@ -50,9 +54,33 @@ public:
 			glfwSetWindowShouldClose(window, true);
 	}
 
-	void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+	void drawCircle(float cx, float cy, float r, int num_segments)
 	{
-		glViewport(0, 0, width, height);
+		float theta = 3.1415926 * 2 / float(num_segments);
+		float tangetial_factor = tanf(theta);
+
+		float radial_factor = cosf(theta);
+
+		float x = r;
+
+		float y = 0;
+		glLineWidth(1);
+		glBegin(GL_LINE_LOOP);
+		glColor3f(1, 1, 1);
+		for (int ii = 0; ii < num_segments; ii++)
+		{
+			glVertex2f(x + cx, y + cy);
+
+			float tx = -y;
+			float ty = x;
+
+			x += tx * tangetial_factor;
+			y += ty * tangetial_factor;
+
+			x *= radial_factor;
+			y *= radial_factor;
+		}
+		glEnd();
 	}
 
 };
